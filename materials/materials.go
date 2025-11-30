@@ -13,10 +13,11 @@ type MaterialDef struct {
 	ID string
 	Name string
 	Type MaterialType
+	Volume int
 }
 
 var (
 	Water = &MaterialDef{ID: "water", Name: "Water", Type: TypeFluid}
 	Steam = &MaterialDef{ID: "steam", Name: "Steam", Type: TypeFluid}
-	Coal = &MaterialDef{ID: "coal", Name: "Coal", Type: TypeSolid}
+	Coal  = &MaterialDef{ID: "coal", Name: "Coal", Type: TypeSolid}
 )
