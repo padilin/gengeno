@@ -9,6 +9,7 @@ import (
 type Component interface {
 	GetIdentifier() string
 	GetColor() (r, g, b byte)
+	GetStructurals() *Structurals
 }
 
 // Basics contains basic information for a component..
@@ -30,12 +31,13 @@ func (b *Basics) GetColor() (byte, byte, byte) {
 
 // Structurals contains structural properties for a component.
 type Structurals struct {
-	MaxCapacity     int
-	CurrentCapacity int
+	MaxCapacity     float64
+	CurrentCapacity float64
 	MaxHeat         int
 	CurrentHeat     int
 	MaxPressure     int
-	CurrentPressure int
+	Pressure        float64
+	Area            float64
 }
 
 // InOut contains properties to connect to other components.
@@ -52,6 +54,10 @@ type Reservoir struct {
 	Contents materials.MaterialDef
 }
 
+func (r *Reservoir) GetStructurals() *Structurals {
+	return &r.Structurals
+}
+
 // PipeSystem is a container for Pipe components.
 type PipeSystem struct {
 	Basics
@@ -64,6 +70,11 @@ type Pipe struct {
 	Structurals
 	InOut
 	Contents materials.MaterialDef
+	FlowArea float64
+}
+
+func (p *Pipe) GetStructurals() *Structurals {
+	return &p.Structurals
 }
 
 // Generator represents any component to generate.
