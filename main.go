@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 	"math/rand"
 	"time"
@@ -106,89 +105,80 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// 	text.Draw(screen, identifier, normalFont, options)
 	// }
 
-	op := &text.DrawOptions{}
-	op.LayoutOptions.LineSpacing = 15
-	op.GeoM.Translate(0, 60)
-	op.ColorScale.ScaleWithColor(color.White)
-	text.Draw(screen, g.System.Status, normalFont, op)
+	// op := &text.DrawOptions{}
+	// op.LayoutOptions.LineSpacing = 15
+	// op.GeoM.Translate(0, 60)
+	// op.ColorScale.ScaleWithColor(color.White)
+	// text.Draw(screen, g.System.Status, normalFont, op)
+
+	debugOptions := &text.DrawOptions{}
+	// op.GeoM.Translate(0, 5)
+	// op.ColorScale.ScaleWithColor(color.Gray{})
+	text.Draw(screen, fmt.Sprintf("Tick %d | TPS %.2f | FPS %.2f\n", g.System.Ticks, ebiten.ActualTPS(), ebiten.ActualFPS()), normalFont, debugOptions)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight
 }
 
+func buildChainSystem(n int) *simulation.System {
+
+	nodes := make([]components.Component, 0, n)
+	pipes := make([]*components.Pipe, 0, n-1)
+
+	// create n reservoirs
+	for i := range n {
+		id := fmt.Sprintf("R%04d", i)
+		// each reservoir: larger area so pipes behave as small volumes
+		cap := 1000.0
+		area := 5.0
+		vol := rand.Float64() * cap // random start volume
+		res := &components.Reservoir{
+			Basics: components.Basics{Identifier: id[0:1], Color: [3]byte{byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256))}},
+			Structurals: components.Structurals{
+				MaxCapacity:     cap,
+				CurrentCapacity: vol,
+				Area:            area,
+				Volume:          vol,
+			},
+		}
+		nodes = append(nodes, res)
+	}
+
+	// connect them in a simple chain: node[i] -> node[i+1]
+	for i := 0; i < n-1; i++ {
+		// diameter and length tuned for performance; adjust as needed
+		radius := 1.0 + rand.Float64()
+		length := 0.5 + rand.Float64()*2.0
+		p := components.NewPipe(nodes[i], nodes[i+1], radius, length)
+		pipes = append(pipes, p)
+	}
+
+	sys := &simulation.System{
+		Nodes: nodes,
+		Pipes: pipes,
+		Ticks: 0,
+	}
+	// initialise total head/pressure for all nodes
+	for _, n := range sys.Nodes {
+		if s := n.GetStructurals(); s != nil {
+			if s.Area > 0 {
+				s.Pressure = s.Volume / s.Area
+			}
+		}
+	}
+	return sys
+}
+
 func main() {
-
-	// --- The Setup ---
-	// 1. Source Tank (Large, Full)
-	source := &components.Reservoir{
-		Basics: components.Basics{Identifier: "A", Color: [3]byte{0, 0, 255}},
-		Structurals: components.Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 150,
-			Area:            5.0,
-			Volume:          50.0,
-		},
-	}
-
-	// 2. The T-Junction
-	// IMPORTANT: Give it a small area (like a pipe standing up).
-	// If Area is too small, simulation oscillates. If too big, it's laggy.
-	// 0.05 is roughly a 25cm pipe.
-	junction := &components.Reservoir{
-		Basics: components.Basics{Identifier: "T", Color: [3]byte{0, 0, 255}},
-		Structurals: components.Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 150,
-			Area:            0.05,
-			Volume:          0.0,
-			IsJunction:      true,
-		},
-	}
-
-	// 3. Two Destination Tanks (Empty)
-	dest1 := &components.Reservoir{
-		Basics: components.Basics{Identifier: "D1", Color: [3]byte{0, 0, 255}},
-		Structurals: components.Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 150,
-			Area:            5.0,
-			Volume:          0.0,
-		},
-	}
-	dest2 := &components.Reservoir{
-		Basics: components.Basics{Identifier: "D2", Color: [3]byte{0, 0, 255}},
-		Structurals: components.Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 150,
-			Area:            5.0,
-			Volume:          0.0,
-		},
-	}
-
-	// --- The Pipes ---
-	// Pipe 1: Source -> Junction (Feeder)
-	p1 := components.NewPipe(source, junction, 10.0, 0.2)
-
-	// Pipe 2: Junction -> Dest1 (Branch A)
-	p2 := components.NewPipe(junction, dest1, 10.0, 0.2)
-
-	// Pipe 3: Junction -> Dest2 (Branch B)
-	// Let's make this pipe longer, so it should fill slower!
-	p3 := components.NewPipe(junction, dest2, 20.0, 0.2)
-
-	sys := simulation.System{
-		Nodes:  []components.Component{source, junction, dest1, dest2},
-		Pipes:  []*components.Pipe{p1, p2, p3},
-		Ticks:  0,
-		Status: "Ready",
-	}
+	const numTanks = 2000000
+	sys := buildChainSystem(numTanks)
 
 	g := &Game{
-		System: &sys,
+		System: sys,
 	}
 
-	fmt.Println("--- Starting T-Junction Simulation ---")
+	fmt.Printf("--- Starting Simulation with %d tanks ---\n", numTanks)
 
 	// --- Run Game ---
 	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)

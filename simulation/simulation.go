@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math"
 
 	"gengeno/components"
@@ -44,10 +43,9 @@ func ApplyPending(c components.Component) {
 }
 
 type System struct {
-	Nodes  []components.Component
-	Pipes  []*components.Pipe
-	Ticks  int
-	Status string
+	Nodes []components.Component
+	Pipes []*components.Pipe
+	Ticks int
 }
 
 func (s *System) Tick() {
@@ -74,7 +72,7 @@ func (s *System) Tick() {
 		}
 
 		// Bernoulli
-		frictionLoss := FrictionFact * (p.Length / p.Diameter)
+		frictionLoss := FrictionFact * (p.Length / (2 * p.Radius))
 		velocity := math.Sqrt((2 * Gravity * deltaH) / (1 + frictionLoss + MinorLoss))
 
 		// Volume to move with direction
@@ -113,28 +111,4 @@ func (s *System) Tick() {
 	for _, node := range s.Nodes {
 		ApplyPending(node)
 	}
-
-	status := fmt.Sprintf("Tick %d\n", s.Ticks)
-	for _, n := range s.Nodes {
-		if st := n.GetStructurals(); st != nil {
-			status += fmt.Sprintf("  [%s] Vol: %.2f  Head: %.2f\n", n.GetIdentifier(), st.Volume, TotalHead(n))
-		} else {
-			status += fmt.Sprintf("  [%s] (no structurals)\n", n.GetIdentifier())
-		}
-	}
-	for _, p := range s.Pipes {
-		fromID := "?"
-		toID := "?"
-		if p.From != nil {
-			fromID = p.From.GetIdentifier()
-		}
-		if p.To != nil {
-			toID = p.To.GetIdentifier()
-		}
-		status += fmt.Sprintf("  (Pipe %s -> %s) Vol: %.2f\n", fromID, toID, p.Volume)
-	}
-
-	status += "--------------------------------\n"
-
-	s.Status = status
 }

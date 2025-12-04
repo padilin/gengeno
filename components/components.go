@@ -40,33 +40,19 @@ type Structurals struct {
 	MaxPressure     int
 	Pressure        float64
 	Area            float64
-
-	// Volume flow update
-	OutletArea float64
-	MaxHeight  float64
-	MaxVolume  float64
-	Volume     float64
-	Radius     float64
-
-	// Physics Update
-	// Area         float64
-	// Volume       float64
-	BaseElevation float64
-	PendingChange float64
-	IsJunction    bool
-}
-
-// InOut contains properties to connect to other components.
-type InOut struct {
-	Inputs  []Component
-	Outputs []Component
+	MaxHeight       float64
+	MaxVolume       float64
+	Volume          float64
+	Radius          float64
+	BaseElevation   float64
+	PendingChange   float64
+	IsJunction      bool
 }
 
 // Reservoir represents any component to hold MaterialDef.
 type Reservoir struct {
 	Basics
 	Structurals
-	InOut
 	Contents materials.MaterialDef
 }
 
@@ -74,41 +60,28 @@ func (r *Reservoir) GetStructurals() *Structurals {
 	return &r.Structurals
 }
 
-// PipeSystem is a container for Pipe components.
-type PipeSystem struct {
-	Basics
-	Pipes []Pipe
-}
-
 // Pipe moves MaterialDef between components.
 type Pipe struct {
 	Basics
 	Structurals
-	InOut
 	Contents materials.MaterialDef
-	FlowArea float64
-
-	// Updated simulator
-	From      Component
-	To        Component
-	Length    float64
-	Diameter  float64
-	Area      float64
-	Volume    float64
-	MaxVolume float64
-	PumpHead  float64
+	From     Component
+	To       Component
+	Length   float64
+	PumpHead float64
 }
 
-func NewPipe(from, to Component, len, dia float64) *Pipe {
-	area := math.Pi * math.Pow(dia/2, 2)
+func NewPipe(from, to Component, len, radius float64) *Pipe {
+	area := math.Pi * math.Pow(radius, 2)
 	return &Pipe{
-		From:      from,
-		To:        to,
-		Length:    len,
-		Diameter:  dia,
-		Area:      area,
-		MaxVolume: area * len,
-		PumpHead:  0,
+		From:     from,
+		To:       to,
+		Length:   len,
+		PumpHead: 0,
+		Structurals: Structurals{
+			MaxVolume: area * len,
+			Area:      area,
+		},
 	}
 }
 
@@ -120,6 +93,5 @@ func (p *Pipe) GetStructurals() *Structurals {
 type Generator struct {
 	Basics
 	Structurals
-	InOut
 	Contents []materials.MaterialDef
 }
