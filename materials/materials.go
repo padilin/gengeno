@@ -10,11 +10,11 @@ const (
 )
 
 type MaterialDef struct {
-	ID string
-	Name string
-	Type MaterialType
+	ID           string
+	Name         string
+	Type         MaterialType
 	FlowConstant float64
-	Volume int
+	Volume       int
 }
 
 var (
