@@ -1,0 +1,27 @@
+# VSCode
+.vscode/
+*.code-workspace
+
+# Go
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Go mod
+go.sum
+vendor/
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

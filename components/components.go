@@ -1,6 +1,8 @@
 package components
 
 import (
+	"math"
+
 	"gengeno/materials"
 )
 
@@ -38,6 +40,20 @@ type Structurals struct {
 	MaxPressure     int
 	Pressure        float64
 	Area            float64
+
+	// Volume flow update
+	OutletArea float64
+	MaxHeight  float64
+	MaxVolume  float64
+	Volume     float64
+	Radius     float64
+
+	// Physics Update
+	// Area         float64
+	// Volume       float64
+	BaseElevation float64
+	PendingChange float64
+	IsJunction    bool
 }
 
 // InOut contains properties to connect to other components.
@@ -71,6 +87,29 @@ type Pipe struct {
 	InOut
 	Contents materials.MaterialDef
 	FlowArea float64
+
+	// Updated simulator
+	From      Component
+	To        Component
+	Length    float64
+	Diameter  float64
+	Area      float64
+	Volume    float64
+	MaxVolume float64
+	PumpHead  float64
+}
+
+func NewPipe(from, to Component, len, dia float64) *Pipe {
+	area := math.Pi * math.Pow(dia/2, 2)
+	return &Pipe{
+		From:      from,
+		To:        to,
+		Length:    len,
+		Diameter:  dia,
+		Area:      area,
+		MaxVolume: area * len,
+		PumpHead:  0,
+	}
 }
 
 func (p *Pipe) GetStructurals() *Structurals {
