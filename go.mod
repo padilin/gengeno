@@ -1,4 +1,4 @@
-module gengeno
+module github.com/padilin/gengeno
 
 go 1.25.3
 
