@@ -15,23 +15,45 @@
 package main
 
 import (
+	"sort"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
+
+type Sprite struct {
+	Image     *ebiten.Image
+	DrawOrder int
+}
 
 // Tile represents a space with an x,y coordinate within a Level. Any number of
 // sprites may be added to a Tile.
 type Tile struct {
-	sprites []*ebiten.Image
+	entities []*Entity
 }
 
-// AddSprite adds a sprite to the Tile.
-func (t *Tile) AddSprite(s *ebiten.Image) {
-	t.sprites = append(t.sprites, s)
+func (t *Tile) AddEntity(entity *Entity) {
+	if t == nil || entity == nil {
+		return
+	}
+	t.entities = append(t.entities, entity)
 }
 
 // Draw draws the Tile on the screen using the provided options.
-func (t *Tile) Draw(screen *ebiten.Image, options *ebiten.DrawImageOptions) {
-	for _, s := range t.sprites {
-		screen.DrawImage(s, options)
+func (t *Tile) Draw(screen *ebiten.Image, baseOptions *ebiten.DrawImageOptions) {
+	if t == nil || baseOptions == nil {
+		return
+	}
+	sorted := make([]*Entity, len(t.entities))
+	copy(sorted, t.entities)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Sprite.DrawOrder < sorted[j].Sprite.DrawOrder
+	})
+
+	for _, e := range sorted {
+		if e == nil || e.Sprite == nil || e.Sprite.Image == nil {
+			continue
+		}
+
+		screen.DrawImage(e.Sprite.Image, baseOptions)
 	}
 }

@@ -16,7 +16,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand/v2"
 )
 
 // Level represents a Game level.
@@ -25,6 +24,83 @@ type Level struct {
 
 	tiles    [][]*Tile // (Y,X) array of tiles
 	tileSize int
+	entities []*Entity
+}
+
+func NewLevel() (*Level, error) {
+	l := &Level{
+		w:        4,
+		h:        4,
+		tileSize: 32,
+		entities: make([]*Entity, 0),
+	}
+
+	ss, err := LoadSpriteSheet(l.tileSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load spritesheet: %s", err)
+	}
+
+	l.tiles = make([][]*Tile, l.h)
+	for y := 0; y < l.h; y++ {
+		l.tiles[y] = make([]*Tile, l.w)
+		for x := 0; x < l.w; x++ {
+			l.tiles[y][x] = &Tile{}
+
+			floorComp := &Reservoir{
+				Basics: Basics{
+					Identifier: ".",
+					Color:      [3]byte{100, 100, 100},
+				},
+			}
+			floorEntity := NewEntity(x, y, floorComp, ss.Floor, 0)
+			l.tiles[y][x].AddEntity(floorEntity)
+			l.entities = append(l.entities, floorEntity)
+		}
+	}
+
+	// Add reservoir at (1,1)
+	res1 := &Reservoir{
+		Basics: Basics{
+			Identifier: "A",
+			Color:      [3]byte{0, 0, 255},
+		},
+		Structurals: Structurals{
+			MaxCapacity:     1000,
+			CurrentCapacity: 1000,
+			Area:            5.0,
+		},
+	}
+	res1Entity := NewEntity(1, 1, res1, ss.Reservoir1, 1)
+	l.tiles[1][1].AddEntity(res1Entity)
+	l.entities = append(l.entities, res1Entity)
+
+	// Add pipes
+	pipe1 := NewPipe(res1, nil, 1.0, 1.0) // we'll fix the connection later
+	pipe1Entity := NewEntity(1, 2, pipe1, ss.PipeEnterLeft, 1)
+	l.tiles[1][2].AddEntity(pipe1Entity)
+	l.entities = append(l.entities, pipe1Entity)
+
+	// Add reservoir at (1,5)
+	res2 := &Reservoir{
+		Basics: Basics{
+			Identifier: "B",
+			Color:      [3]byte{0, 0, 255},
+		},
+		Structurals: Structurals{
+			MaxCapacity:     1000,
+			CurrentCapacity: 0,
+			Area:            5.0,
+		},
+	}
+	res2Entity := NewEntity(1, 5, res2, ss.Reservoir1, 1)
+	l.tiles[1][3].AddEntity(res2Entity)
+	l.entities = append(l.entities, res2Entity)
+
+	// Wire up the pipe connection
+	pipe1.From = res1
+	pipe1.To = res2
+
+	return l, nil
 }
 
 // Tile returns the tile at the provided coordinates, or nil.
@@ -38,54 +114,4 @@ func (l *Level) Tile(x, y int) *Tile {
 // Size returns the size of the Level.
 func (l *Level) Size() (width, height int) {
 	return l.w, l.h
-}
-
-// NewLevel returns a new randomly generated Level.
-func NewLevel() (*Level, error) {
-	// Create a 108x108 Level.
-	l := &Level{
-		w:        100,
-		h:        100,
-		tileSize: 32,
-	}
-
-	// Load embedded SpriteSheet.
-	ss, err := LoadSpriteSheet(l.tileSize)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load embedded spritesheet: %s", err)
-	}
-
-	// Fill each tile with one or more sprites randomly.
-	l.tiles = make([][]*Tile, l.h)
-	for y := 0; y < l.h; y++ {
-		l.tiles[y] = make([]*Tile, l.w)
-		for x := 0; x < l.w; x++ {
-			t := &Tile{}
-
-			// isBorderSpace := x == 0 || y == 0 || x == l.w-1 || y == l.h-1
-			val := rand.IntN(1000)
-			if val < 500 {
-				t.AddSprite(ss.Floor)
-			}
-			switch {
-			case val < 200:
-				t.AddSprite(ss.Weird)
-				// case val < 285:
-				// 	t.AddSprite(ss.Statue)
-				// case val < 288:
-				// 	t.AddSprite(ss.Crown)
-				// case val < 289:
-				// 	t.AddSprite(ss.Floor)
-				// 	t.AddSprite(ss.Tube)
-				// case val < 290:
-				// 	t.AddSprite(ss.Portal)
-				// default:
-				// 	t.AddSprite(ss.Floor)
-			}
-
-			l.tiles[y][x] = t
-		}
-	}
-
-	return l, nil
 }

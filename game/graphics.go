@@ -47,10 +47,3 @@ func (f *Factory) Update() {
 func (f *Factory) Draw(pix []byte) {
 
 }
-
-// Entity now holds a component and its position.
-type Entity struct {
-	x         int
-	y         int
-	component Component
-}

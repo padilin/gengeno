@@ -25,8 +25,17 @@ import (
 
 // SpriteSheet represents a collection of sprite images.
 type SpriteSheet struct {
-	Floor *ebiten.Image
-	Weird *ebiten.Image
+	Floor           *ebiten.Image
+	Weird           *ebiten.Image
+	Reservoir1      *ebiten.Image
+	Reservoir2      *ebiten.Image
+	PipeDown        *ebiten.Image
+	PipeHorz        *ebiten.Image
+	PipeEnterLeft   *ebiten.Image
+	PipeEnterRight  *ebiten.Image
+	PipeVert        *ebiten.Image
+	PipeLeftToDown  *ebiten.Image
+	PipeRightToDown *ebiten.Image
 }
 
 // LoadSpriteSheet loads the embedded SpriteSheet.
@@ -51,6 +60,15 @@ func LoadSpriteSheet(tileSize int) (*SpriteSheet, error) {
 	s := &SpriteSheet{}
 	s.Floor = spriteAt(0, 0)
 	s.Weird = spriteAt(1, 0)
+	s.Reservoir1 = spriteAt(2, 0)
+	s.Reservoir2 = spriteAt(2, 1)
+	s.PipeDown = spriteAt(3, 0)
+	s.PipeHorz = spriteAt(3, 1)
+	s.PipeEnterLeft = spriteAt(3, 2)
+	s.PipeEnterRight = spriteAt(3, 3)
+	s.PipeVert = spriteAt(3, 4)
+	s.PipeLeftToDown = spriteAt(3, 5)
+	s.PipeRightToDown = spriteAt(3, 6)
 	// s.Wall = spriteAt(2, 3)
 	// s.Statue = spriteAt(5, 4)
 	// s.Tube = spriteAt(3, 4)
