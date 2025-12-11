@@ -1,7 +1,84 @@
-# Gen-Geno
 
-The game of generators
+# Gengeno
 
-## Ideas
+A generator game written in Go using Ebitengine.
 
-I am working on making a Go game using enbitengine. I got this idea watching a fairly in-depth Nuclear game on youtube. I want to start with emulating several powersystems (nuclear, coal, hydro, and wind) and from there either make an incremental, idle, or go with the in-depth running each type. Power requiremnts vs generation, with fluctuating demand would be good.
+## Goal
+Other than learning Go and Ebitengine, I want to create a game about generating power employing anything from coal, fuel, hydro, nucelar, and more.  The goal is to create semi-realistic simulation of power generation and distribution.
+
+## Ideas Implemented (in no particular order)
+
+- Pipes and Reservoirs
+- Pressure based flow
+- Sprites
+- Sprites updated based on state
+- Isometric view
+
+## Ideas Not Implemented (in no particular order)
+
+- Generators
+- Power simulation
+- Material properties
+- Heat simulation
+- UI
+- Non-placeholder assets
+
+## Program Flow
+
+```mermaid
+graph TD
+    subgraph "Main Loop (Ebiten)"
+        Main["main.go"] -->|RunGame| Game
+        Game -->|Update| System
+        Game -->|Draw| Level
+    end
+
+    subgraph "Data Structures"
+        Game["Game Struct"]
+        System["System Struct"]
+        Level["Level Struct"]
+        
+        Game --> System
+        Game --> Level
+        
+        System -->|Manages| NodeList["Nodes []Component"]
+        System -->|Manages| PipeList["Pipes []*Pipe"]
+        
+        Level -->|Contains| Entities["Entities []*Entity"]
+        Level -->|Contains| Tiles["Tiles [][]*Tile"]
+        
+        Entity -->|Has A| Component
+        Entity -->|Has A| Sprite
+        
+        Pipe -->|Implements| Component
+        Reservoir -->|Implements| Component
+        Generator -->|Implements| Component
+    end
+
+    subgraph "Simulation Logic (System.Tick)"
+        MethodTick["Tick()"]
+        CalcFlow[Calculate Bernoulli Flow]
+        MoveVol[Move Volume]
+        UpdateNodes[Update Component States]
+        
+        System --> MethodTick
+        MethodTick -->|Iterate Pipes| CalcFlow
+        CalcFlow -->|Delta Head & Friction| MoveVol
+        MoveVol -->|Update Pending| PipeList
+        MethodTick -->|Apply Pending Changes| UpdateNodes
+        UpdateNodes --> NodeList
+    end
+
+    subgraph "Rendering (Game.Draw)"
+        MethodDraw["Draw()"]
+        RenderLevel[renderLevel]
+        DrawEntity["Entity.Draw"]
+        
+        Game --> MethodDraw
+        MethodDraw --> RenderLevel
+        RenderLevel -->|Iterate| Tiles
+        Tiles -->|Contains| Entity
+        Entity --> DrawEntity
+        DrawEntity -->|Uses| Sprite
+    end
+```
