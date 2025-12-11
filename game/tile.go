@@ -43,17 +43,35 @@ func (t *Tile) Draw(screen *ebiten.Image, baseOptions *ebiten.DrawImageOptions) 
 	if t == nil || baseOptions == nil {
 		return
 	}
+
+	// Sort entities by DrawOrder (ascending)
 	sorted := make([]*Entity, len(t.entities))
 	copy(sorted, t.entities)
 	sort.Slice(sorted, func(i, j int) bool {
-		return sorted[i].Sprite.DrawOrder < sorted[j].Sprite.DrawOrder
+		spriteI := sorted[i].CurrentSprite()
+		spriteJ := sorted[j].CurrentSprite()
+		if spriteI == nil || spriteJ == nil {
+			return false
+		}
+		return spriteI.DrawOrder < spriteJ.DrawOrder
 	})
 
 	for _, e := range sorted {
-		if e == nil || e.Sprite == nil || e.Sprite.Image == nil {
+		if e == nil {
 			continue
 		}
 
-		screen.DrawImage(e.Sprite.Image, baseOptions)
+		// Use CurrentSprite() to get state-based sprite if a selector is set
+		sprite := e.CurrentSprite()
+		if sprite == nil {
+			sprite = e.Sprite // fallback to default sprite
+		}
+		if sprite == nil || sprite.Image == nil {
+			continue
+		}
+
+		opts := *baseOptions
+
+		screen.DrawImage(sprite.Image, &opts)
 	}
 }

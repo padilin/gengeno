@@ -27,7 +27,7 @@ type Level struct {
 	entities []*Entity
 }
 
-func NewLevel() (*Level, error) {
+func NewLevel(g *Game) (*Level, error) {
 	l := &Level{
 		w:        4,
 		h:        4,
@@ -35,7 +35,7 @@ func NewLevel() (*Level, error) {
 		entities: make([]*Entity, 0),
 	}
 
-	ss, err := LoadSpriteSheet(l.tileSize)
+	_, err := LoadSpriteSheet(l.tileSize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load spritesheet: %s", err)
 	}
@@ -52,10 +52,14 @@ func NewLevel() (*Level, error) {
 					Color:      [3]byte{100, 100, 100},
 				},
 			}
-			floorEntity := NewEntity(x, y, floorComp, ss.Floor, 0)
+			floorEntity := NewFloorEntity(x, y, floorComp, 0)
 			l.tiles[y][x].AddEntity(floorEntity)
 			l.entities = append(l.entities, floorEntity)
 		}
+	}
+
+	if g.System == nil {
+		g.System = &System{}
 	}
 
 	// Add reservoir at (1,1)
@@ -65,20 +69,25 @@ func NewLevel() (*Level, error) {
 			Color:      [3]byte{0, 0, 255},
 		},
 		Structurals: Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 1000,
-			Area:            5.0,
+			MaxVolume: 2000.0,
+			Volume:    2000.0,
+			Area:      10.0,
 		},
 	}
-	res1Entity := NewEntity(1, 1, res1, ss.Reservoir1, 1)
+	res1Entity := NewReservoirEntity(1, 1, res1, 1)
 	l.tiles[1][1].AddEntity(res1Entity)
 	l.entities = append(l.entities, res1Entity)
 
+	g.System.Nodes = append(g.System.Nodes, res1Entity.Component)
+
 	// Add pipes
-	pipe1 := NewPipe(res1, nil, 1.0, 1.0) // we'll fix the connection later
-	pipe1Entity := NewEntity(1, 2, pipe1, ss.PipeEnterLeft, 1)
+	pipe1 := NewPipe(res1, nil, 15.0, 0.5) // we'll fix the connection later
+	pipe1Entity := NewPipeEntity(1, 2, pipe1, "pipe_enter_left", 1)
+
 	l.tiles[1][2].AddEntity(pipe1Entity)
 	l.entities = append(l.entities, pipe1Entity)
+
+	g.System.Pipes = append(g.System.Pipes, pipe1)
 
 	// Add reservoir at (1,5)
 	res2 := &Reservoir{
@@ -87,14 +96,16 @@ func NewLevel() (*Level, error) {
 			Color:      [3]byte{0, 0, 255},
 		},
 		Structurals: Structurals{
-			MaxCapacity:     1000,
-			CurrentCapacity: 0,
-			Area:            5.0,
+			MaxVolume: 1500.0,
+			Volume:    0.0,
+			Area:      10.0,
 		},
 	}
-	res2Entity := NewEntity(1, 5, res2, ss.Reservoir1, 1)
+	res2Entity := NewReservoirEntity(1, 5, res2, 1)
 	l.tiles[1][3].AddEntity(res2Entity)
 	l.entities = append(l.entities, res2Entity)
+
+	g.System.Nodes = append(g.System.Nodes, res2Entity.Component)
 
 	// Wire up the pipe connection
 	pipe1.From = res1

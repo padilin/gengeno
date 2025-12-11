@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 )
@@ -51,15 +52,37 @@ type System struct {
 func (s *System) Tick() {
 	s.Ticks++
 	if s.Ticks%10 != 0 {
+		log.Printf("SIM Ticks=%d Nodes=%d Pipes=%d", s.Ticks, len(s.Nodes), len(s.Pipes))
+		for i, p := range s.Pipes {
+			in := p.From
+			out := p.To
+			var inS, outS *Structurals
+			if in != nil {
+				inS = in.GetStructurals()
+			}
+			if out != nil {
+				outS = out.GetStructurals()
+			}
+			log.Printf("Pipe[%d] area=%.3f len=%.3f from=%v cap=%.2f pres=%.3f -> to=%v cap=%.2f pres=%.3f vol=%.3f",
+				i, p.Area, p.Length,
+				identifier(in), cap(inS), pres(inS),
+				identifier(out), cap(outS), pres(outS), p.Volume)
+		}
 		return
 	}
 
+	// fmt.Println("test")
+	// fmt.Printf("test: %s\n", strconv.FormatBool(s.Pipes[0] == nil))
+
 	for _, p := range s.Pipes {
+		// fmt.Printf("test: %s\n", strconv.FormatBool(p == nil))
+
 		// Find difference of head to find flow.
 		// Optionally adds in pumphead.
 		headFrom := TotalHead(p.From)
 		headTo := TotalHead(p.To)
 		deltaH := (headFrom + p.PumpHead) - headTo
+		log.Printf("deltaH: %.1f", deltaH)
 		direction := 1.0
 		if deltaH < 0 {
 			direction = -1.0
@@ -128,10 +151,9 @@ func buildChainSystem(n int) *System {
 		res := &Reservoir{
 			Basics: Basics{Identifier: id[0:1], Color: [3]byte{byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256))}},
 			Structurals: Structurals{
-				MaxCapacity:     cap,
-				CurrentCapacity: vol,
-				Area:            area,
-				Volume:          vol,
+				MaxVolume: cap,
+				Area:      area,
+				Volume:    vol,
 			},
 		}
 		nodes = append(nodes, res)

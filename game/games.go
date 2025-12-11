@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Game struct {
@@ -17,26 +17,39 @@ type Game struct {
 	camScaleTo           float64
 	mousePanX, mousePanY int
 	offscreen            *ebiten.Image
+	pause                bool
 }
 
 func NewGame() (*Game, error) {
 	// TODO: Move system initialization here
-	l, err := NewLevel()
+	_, err := LoadSpriteSheet(32)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create new level: %s", err)
+		log.Fatal(err)
 	}
+
 	g := &Game{
-		currentLevel: l,
+		currentLevel: nil,
 		camScale:     1,
 		camScaleTo:   1,
 		mousePanX:    0,
 		mousePanY:    0,
+		pause:        true,
 	}
+	l, err := NewLevel(g)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new level: %s", err)
+	}
+	g.currentLevel = l
 	return g, nil
 }
 
 func (g *Game) Update() error {
-	// g.System.Tick()
+	if !g.pause {
+		g.System.Tick()
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyP) {
+		g.pause = !g.pause
+	}
 
 	// Target scroll zoom level.
 	var scrollY float64
@@ -113,8 +126,9 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.renderLevel(screen)
+	// ebitenutil.DebugPrint(screen, fmt.Sprintf("Fill: %.1f", g.System.Nodes[0].GetStructurals().CurrentCapacity))
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("KEYS WASD EC R\nFPS  %0.0f\nTPS  %0.0f\nSCA  %0.2f\nPOS  %0.0f,%0.0f", ebiten.ActualFPS(), ebiten.ActualTPS(), g.camScale, g.camX, g.camY))
+	// ebitenutil.DebugPrint(screen, fmt.Sprintf("KEYS WASD EC R\nFPS  %0.0f\nTPS  %0.0f\nSCA  %0.2f\nPOS  %0.0f,%0.0f", ebiten.ActualFPS(), ebiten.ActualTPS(), g.camScale, g.camX, g.camY))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

@@ -23,6 +23,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+var spriteSet map[string]*Sprite
+
 // SpriteSheet represents a collection of sprite images.
 type SpriteSheet struct {
 	Floor           *ebiten.Image
@@ -58,22 +60,32 @@ func LoadSpriteSheet(tileSize int) (*SpriteSheet, error) {
 
 	// Populate SpriteSheet.
 	s := &SpriteSheet{}
-	s.Floor = spriteAt(0, 0)
-	s.Weird = spriteAt(1, 0)
-	s.Reservoir1 = spriteAt(2, 0)
-	s.Reservoir2 = spriteAt(2, 1)
-	s.PipeDown = spriteAt(3, 0)
-	s.PipeHorz = spriteAt(3, 1)
-	s.PipeEnterLeft = spriteAt(3, 2)
-	s.PipeEnterRight = spriteAt(3, 3)
-	s.PipeVert = spriteAt(3, 4)
-	s.PipeLeftToDown = spriteAt(3, 5)
-	s.PipeRightToDown = spriteAt(3, 6)
+	// s.Floor = spriteAt(0, 0)
+	// s.Weird = spriteAt(1, 0)
+	// s.Reservoir1 = spriteAt(2, 0)
+	// s.Reservoir2 = spriteAt(2, 1)
+	// s.PipeDown = spriteAt(3, 0)
+	// s.PipeHorz = spriteAt(3, 1)
+	// s.PipeEnterLeft = spriteAt(3, 2)
+	// s.PipeEnterRight = spriteAt(3, 3)
+	// s.PipeVert = spriteAt(3, 4)
+	// s.PipeLeftToDown = spriteAt(3, 5)
+	// s.PipeRightToDown = spriteAt(3, 6)
 	// s.Wall = spriteAt(2, 3)
 	// s.Statue = spriteAt(5, 4)
 	// s.Tube = spriteAt(3, 4)
 	// s.Crown = spriteAt(8, 6)
 	// s.Portal = spriteAt(5, 6)
+
+	spriteSet = map[string]*Sprite{
+		"floor":           {Image: spriteAt(0, 0), DrawOrder: 0},
+		"pipe_enter_left": {Image: spriteAt(3, 2), DrawOrder: 10},
+		"reservoir_full":  {Image: spriteAt(2, 0), DrawOrder: 5},
+		"reservoir_high":  {Image: spriteAt(2, 1), DrawOrder: 5},
+		"reservoir_mid":   {Image: spriteAt(2, 2), DrawOrder: 5},
+		"reservoir_low":   {Image: spriteAt(2, 3), DrawOrder: 5},
+		"reservoir_empty": {Image: spriteAt(2, 4), DrawOrder: 5},
+	}
 
 	return s, nil
 }

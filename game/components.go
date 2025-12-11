@@ -31,20 +31,18 @@ func (b *Basics) GetColor() (byte, byte, byte) {
 
 // Structurals contains structural properties for a component.
 type Structurals struct {
-	MaxCapacity     float64
-	CurrentCapacity float64
-	MaxHeat         int
-	CurrentHeat     int
-	MaxPressure     int
-	Pressure        float64
-	Area            float64
-	MaxHeight       float64
-	MaxVolume       float64
-	Volume          float64
-	Radius          float64
-	BaseElevation   float64
-	PendingChange   float64
-	IsJunction      bool
+	MaxHeat       int
+	CurrentHeat   int
+	MaxPressure   int
+	Pressure      float64
+	Area          float64
+	MaxHeight     float64
+	MaxVolume     float64
+	Volume        float64
+	Radius        float64
+	BaseElevation float64
+	PendingChange float64
+	IsJunction    bool
 }
 
 // Reservoir represents any component to hold MaterialDef.
@@ -79,6 +77,7 @@ func NewPipe(from, to Component, len, radius float64) *Pipe {
 		Structurals: Structurals{
 			MaxVolume: area * len,
 			Area:      area,
+			Radius:    radius,
 		},
 	}
 }

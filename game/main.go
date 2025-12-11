@@ -16,6 +16,7 @@ const (
 )
 
 func main() {
+
 	// f, err := os.Create("cpu.prof")
 	// if err != nil {
 	// 	panic(err)
@@ -23,12 +24,14 @@ func main() {
 	// defer f.Close()
 	// pprof.StartCPUProfile(f)
 	// defer pprof.StopCPUProfile()
-	const numTanks = 2000000
+	// const numTanks = 2000000
 	// Assuming buildChainSystem and System field are removed,
 	// the Game struct initialization needs to be adjusted.
 	// For now, initializing g without System.
 	// g := &Game{System: buildChainSystem(numTanks)}
 	// fmt.Printf("--- Starting Simulation with %d tanks ---\n", numTanks)
+
+	// Create game with the level
 	g, err := NewGame()
 	if err != nil {
 		log.Fatal(err)
