@@ -38,7 +38,7 @@ func FillPercentSelector(stateMap map[string]string) SpriteSelector {
 
 		p := 0.0
 		if s.MaxVolume > 0 {
-			p = s.Volume / s.MaxVolume
+			p = s.Quantity / s.MaxVolume
 		}
 
 		// Find the appropriate state key based on fill %

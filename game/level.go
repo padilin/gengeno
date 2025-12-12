@@ -1,17 +1,3 @@
-// Copyright 2021 The Ebiten Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package main
 
 import (
@@ -25,6 +11,7 @@ type Level struct {
 	tiles    [][]*Tile // (Y,X) array of tiles
 	tileSize int
 	entities []*Entity
+	System   *System
 }
 
 func NewLevel(g *Game) (*Level, error) {
@@ -61,53 +48,45 @@ func NewLevel(g *Game) (*Level, error) {
 	if g.System == nil {
 		g.System = &System{}
 	}
+	l.System = g.System
 
-	// Add reservoir at (1,1)
-	res1 := &Reservoir{
-		Basics: Basics{
-			Identifier: "A",
-			Color:      [3]byte{0, 0, 255},
-		},
-		Structurals: Structurals{
-			MaxVolume: 2000.0,
-			Volume:    2000.0,
-			Area:      10.0,
-		},
-	}
-	res1Entity := NewReservoirEntity(1, 1, res1, 1)
-	l.tiles[1][1].AddEntity(res1Entity)
-	l.entities = append(l.entities, res1Entity)
+	// Add reservoir A
+	entA, _ := l.Spawn(EntityConfig{
+		Type: "Reservoir",
+		X:    1, Y: 1,
+		Identifier: "A",
+		MaxVolume:  2000,
+		InitialQty: 2000,
+		Contents:   &Water,
+	})
 
-	g.System.Nodes = append(g.System.Nodes, res1Entity.Component)
+	// Add Pipe
+	entPipe, _ := l.Spawn(EntityConfig{
+		Type: "Pipe",
+		X:    1, Y: 2,
+		Identifier: "P1",
+		InitialQty: 0.5, // partial filled
+		PipeLength: 15.0,
+		PipeRadius: 0.5,
+		Sprite:     "pipe_enter_left",
+	})
 
-	// Add pipes
-	pipe1 := NewPipe(res1, nil, 15.0, 0.5) // we'll fix the connection later
-	pipe1Entity := NewPipeEntity(1, 2, pipe1, "pipe_enter_left", 1)
-
-	l.tiles[1][2].AddEntity(pipe1Entity)
-	l.entities = append(l.entities, pipe1Entity)
-
-	g.System.Pipes = append(g.System.Pipes, pipe1)
-
-	// Add reservoir at (1,5)
-	res2 := &Reservoir{
-		Basics: Basics{
-			Identifier: "B",
-			Color:      [3]byte{0, 0, 255},
-		},
-		Structurals: Structurals{
-			MaxVolume: 1500.0,
-			Volume:    0.0,
-			Area:      10.0,
-		},
-	}
-	res2Entity := NewReservoirEntity(1, 5, res2, 1)
-	l.tiles[1][3].AddEntity(res2Entity)
-	l.entities = append(l.entities, res2Entity)
-
-	g.System.Nodes = append(g.System.Nodes, res2Entity.Component)
+	// Add reservoir B
+	entB, _ := l.Spawn(EntityConfig{
+		Type: "Reservoir",
+		X:    1, Y: 3,
+		Identifier: "B",
+		MaxVolume:  1500,
+		InitialQty: 0,
+		Contents:   &Water,
+	})
 
 	// Wire up the pipe connection
+	// We need to extract the components from the entities
+	res1 := entA.Component
+	res2 := entB.Component
+	pipe1 := entPipe.Component.(*Pipe)
+
 	pipe1.From = res1
 	pipe1.To = res2
 

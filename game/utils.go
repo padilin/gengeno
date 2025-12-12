@@ -6,10 +6,10 @@ import (
 )
 
 // SamePtr reports whether a and b are the exact same pointer value.
-func SamePtr(a, b interface{}) (bool, string) {
+func SamePtr(a, b any) (bool, string) {
 	ra := reflect.ValueOf(a)
 	rb := reflect.ValueOf(b)
-	if ra.IsValid() && rb.IsValid() && ra.Kind() == reflect.Ptr && rb.Kind() == reflect.Ptr {
+	if ra.IsValid() && rb.IsValid() && ra.Kind() == reflect.Pointer && rb.Kind() == reflect.Pointer {
 		eq := ra.Pointer() == rb.Pointer()
 		desc := fmt.Sprintf("%T(0x%x) == %T(0x%x) => %v", a, ra.Pointer(), b, rb.Pointer(), eq)
 		return eq, desc
@@ -36,12 +36,16 @@ func cap(s *Structurals) float64 {
 	if s == nil {
 		return 0
 	}
-	return s.Volume
+	return s.MaxVolume
 }
 
 func pres(s *Structurals) float64 {
 	if s == nil {
 		return 0
 	}
-	return s.Pressure
+	// Simplified visual pressure estimate
+	if s.MaxVolume > 0 {
+		return s.Quantity / s.MaxVolume
+	}
+	return 0
 }
