@@ -1,4 +1,4 @@
-
+[![Go Reference](https://pkg.go.dev/badge/github.com/padilin/gengeno.svg)](https://pkg.go.dev/github.com/padilin/gengeno)
 # Gengeno
 
 A generator game written in Go using Ebitengine.
