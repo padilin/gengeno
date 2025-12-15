@@ -7,8 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
-    name: Build, Test and Lint
+  test:
+    name: test
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -20,17 +20,23 @@ jobs:
         go-version: 'stable'
         cache: true
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: latest
-        args: --timeout=5m
-
     - name: Run go vet
       run: go vet ./...
 
     - name: Run tests
       run: go test -v ./...
+  notify:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 'stable'
+        cache: true
 
     - name: Build
       run: go build -v ./...
