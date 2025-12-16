@@ -12,31 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
+    
+    - uses: nao1215/actions-ebitengine@v0
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
+    - uses: actions/setup-go@v6
       with:
-        go-version: 'stable'
-        cache: true
+        go-version-file: go.mod
+        check-latest: true
+    
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v9
 
     - name: Run go vet
       run: go vet ./...
 
     - name: Run tests
       run: go test -v ./...
-  notify:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: 'stable'
-        cache: true
 
     - name: Build
       run: go build -v ./...
