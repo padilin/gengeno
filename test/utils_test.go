@@ -7,8 +7,8 @@ import (
 )
 
 func TestSamePtr(t *testing.T) {
-	var i1 int = 1
-	var i2 int = 1
+	var i1 = 1
+	var i2 = 1
 	a := &i1
 	b := &i2
 	c := a

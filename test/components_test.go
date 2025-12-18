@@ -118,12 +118,12 @@ func TestNewPipe(t *testing.T) {
 				t.Fatal("NewPipe() returned nil")
 			}
 			expectedArea := math.Pi * 4.0 // pi * r^2 = pi * 2^2
-			if math.Abs(got.Structurals.Area-expectedArea) > 0.0001 {
-				t.Errorf("NewPipe() Area = %v, want %v", got.Structurals.Area, expectedArea)
+			if math.Abs(got.Area-expectedArea) > 0.0001 {
+				t.Errorf("NewPipe() Area = %v, want %v", got.Area, expectedArea)
 			}
 			expectedVol := expectedArea * 10.0
-			if math.Abs(got.Structurals.MaxVolume-expectedVol) > 0.0001 {
-				t.Errorf("NewPipe() MaxVolume = %v, want %v", got.Structurals.MaxVolume, expectedVol)
+			if math.Abs(got.MaxVolume-expectedVol) > 0.0001 {
+				t.Errorf("NewPipe() MaxVolume = %v, want %v", got.MaxVolume, expectedVol)
 			}
 			if got.Length != 10.0 {
 				t.Errorf("NewPipe() Length = %v, want 10.0", got.Length)

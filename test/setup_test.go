@@ -15,7 +15,7 @@ func init() {
 	if _, err := os.Stat("assets"); os.IsNotExist(err) {
 		// Attempt to move up one level
 		if _, err := os.Stat("../assets"); err == nil {
-			os.Chdir("..")
+			_ = os.Chdir("..")
 		}
 	}
 }
