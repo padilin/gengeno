@@ -114,18 +114,18 @@ func TestApplyPending(t *testing.T) {
 		},
 	}
 	game.ApplyPending(r)
-	if r.Structurals.Quantity != 110 {
-		t.Errorf("ApplyPending() quantity = %v, want 110", r.Structurals.Quantity)
+	if r.Quantity != 110 {
+		t.Errorf("ApplyPending() quantity = %v, want 110", r.Quantity)
 	}
-	if r.Structurals.PendingChange != 0 {
-		t.Errorf("ApplyPending() pending = %v, want 0", r.Structurals.PendingChange)
+	if r.PendingChange != 0 {
+		t.Errorf("ApplyPending() pending = %v, want 0", r.PendingChange)
 	}
 
 	// Negative Check
-	r.Structurals.PendingChange = -200
+	r.PendingChange = -200
 	game.ApplyPending(r)
-	if r.Structurals.Quantity != 0 {
-		t.Errorf("ApplyPending() quantity underflow = %v, want 0", r.Structurals.Quantity)
+	if r.Quantity != 0 {
+		t.Errorf("ApplyPending() quantity underflow = %v, want 0", r.Quantity)
 	}
 }
 
