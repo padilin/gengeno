@@ -1,4 +1,4 @@
-package main
+package game
 
 type SpriteSelector func(e *Entity) *Sprite
 
@@ -23,7 +23,7 @@ func (e *Entity) CurrentSprite() *Sprite {
 // StaticSpriteSelector returns a selector that always returns the same sprite key.
 func StaticSpriteSelector(key string) SpriteSelector {
 	return func(e *Entity) *Sprite {
-		return spriteSet[key]
+		return SpriteSet[key]
 	}
 }
 
@@ -58,7 +58,7 @@ func FillPercentSelector(stateMap map[string]string) SpriteSelector {
 
 		// Look up the sprite in the provided state map
 		if key, ok := stateMap[state]; ok {
-			return spriteSet[key]
+			return SpriteSet[key]
 		}
 		return nil
 	}

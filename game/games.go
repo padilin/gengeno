@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"fmt"
@@ -18,6 +18,10 @@ type Game struct {
 	mousePanX, mousePanY int
 	offscreen            *ebiten.Image
 	pause                bool
+}
+
+func (g *Game) SetPause(p bool) {
+	g.pause = p
 }
 
 func NewGame() (*Game, error) {
@@ -108,8 +112,8 @@ func (g *Game) Update() error {
 	}
 
 	// Clamp camera position
-	worldWidth := float64(g.currentLevel.w * g.currentLevel.tileSize / 2)
-	worldHeight := float64(g.currentLevel.h * g.currentLevel.tileSize / 2)
+	worldWidth := float64(g.currentLevel.Width * g.currentLevel.tileSize / 2)
+	worldHeight := float64(g.currentLevel.Height * g.currentLevel.tileSize / 2)
 	if g.camX < -worldWidth {
 		g.camX = -worldWidth
 	} else if g.camX > worldWidth {
@@ -136,14 +140,14 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return g.w, g.h
 }
 
-func (g *Game) cartesianToIso(x, y float64) (float64, float64) {
+func (g *Game) CartesianToIso(x, y float64) (float64, float64) {
 	tileSize := g.currentLevel.tileSize
 	ix := (x - y) * float64(tileSize/2)
 	iy := (x + y) * float64(tileSize/4)
 	return ix, iy
 }
 
-func (g *Game) isoToCartesian(x, y float64) (float64, float64) {
+func (g *Game) IsoToCartesian(x, y float64) (float64, float64) {
 	tileSize := g.currentLevel.tileSize
 	cx := (x/float64(tileSize/2) + y/float64(tileSize/4)) / 2
 	cy := (y/float64(tileSize/4) - x/float64(tileSize/2)) / 2
@@ -175,9 +179,9 @@ func (g *Game) renderLevel(screen *ebiten.Image) {
 		scale = 1
 	}
 
-	for y := 0; y < g.currentLevel.h; y++ {
-		for x := 0; x < g.currentLevel.w; x++ {
-			xi, yi := g.cartesianToIso(float64(x), float64(y))
+	for y := 0; y < g.currentLevel.Height; y++ {
+		for x := 0; x < g.currentLevel.Width; x++ {
+			xi, yi := g.CartesianToIso(float64(x), float64(y))
 
 			// Skip offscreen
 			drawX, drawY := ((xi-g.camX)*g.camScale)+cx, ((yi+g.camY)*g.camScale)+cy

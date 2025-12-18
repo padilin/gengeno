@@ -1,39 +1,41 @@
-package main
+package test
 
 import (
 	"math"
 	"testing"
+
+	"github.com/padilin/gengeno/game"
 )
 
 func TestGetMaterial(t *testing.T) {
 	tests := []struct {
 		name string
-		c    Component
-		want *MaterialDef
+		c    game.Component
+		want *game.MaterialDef
 	}{
 		{
 			name: "With Contents",
-			c: &Reservoir{
-				Structurals: Structurals{Contents: []MaterialDef{Water}},
+			c: &game.Reservoir{
+				Structurals: game.Structurals{Contents: []game.MaterialDef{game.Water}},
 			},
-			want: &Water,
+			want: &game.Water,
 		},
 		{
 			name: "Empty Contents",
-			c: &Reservoir{
-				Structurals: Structurals{Contents: []MaterialDef{}},
+			c: &game.Reservoir{
+				Structurals: game.Structurals{Contents: []game.MaterialDef{}},
 			},
-			want: &Water, // Defaults to Water
+			want: &game.Water, // Defaults to Water
 		},
 		{
 			name: "Nil Structurals",
-			c:    &Reservoir{}, // Structurals zero value has empty contents
-			want: &Water,
+			c:    &game.Reservoir{}, // Structurals zero value has empty contents
+			want: &game.Water,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetMaterial(tt.c); *got != *tt.want { // Compare values
+			if got := game.GetMaterial(tt.c); *got != *tt.want { // Compare values
 				t.Errorf("GetMaterial() = %v, want %v", got, tt.want)
 			}
 		})
@@ -45,47 +47,47 @@ func TestTotalHead(t *testing.T) {
 	// Water Density = 1000
 	tests := []struct {
 		name string
-		c    Component
+		c    game.Component
 		want float64
 	}{
 		{
 			name: "Simple Water Column",
-			c: &Reservoir{
-				Structurals: Structurals{
+			c: &game.Reservoir{
+				Structurals: game.Structurals{
 					Area:          1.0,
 					Quantity:      1000.0, // Should result in 1m height
 					BaseElevation: 0,
-					Contents:      []MaterialDef{Water},
+					Contents:      []game.MaterialDef{game.Water},
 				},
 			},
 			want: 1.0,
 		},
 		{
 			name: "Water Column with Elevation",
-			c: &Reservoir{
-				Structurals: Structurals{
+			c: &game.Reservoir{
+				Structurals: game.Structurals{
 					Area:          1.0,
 					Quantity:      1000.0,
 					BaseElevation: 10.0,
-					Contents:      []MaterialDef{Water},
+					Contents:      []game.MaterialDef{game.Water},
 				},
 			},
 			want: 11.0,
 		},
 		{
 			name: "Empty Area (Divide by Zero Protection)",
-			c: &Reservoir{
-				Structurals: Structurals{Area: 0, BaseElevation: 5},
+			c: &game.Reservoir{
+				Structurals: game.Structurals{Area: 0, BaseElevation: 5},
 			},
 			want: 5.0,
 		},
 		{
 			name: "Gas Pressure",
-			c: &Reservoir{
-				Structurals: Structurals{
+			c: &game.Reservoir{
+				Structurals: game.Structurals{
 					MaxVolume:     10.0,
 					Quantity:      5.0,
-					Contents:      []MaterialDef{{Type: TypeGas, GasConstant: 100}},
+					Contents:      []game.MaterialDef{{Type: game.TypeGas, GasConstant: 100}},
 					BaseElevation: 0,
 				},
 			},
@@ -96,7 +98,7 @@ func TestTotalHead(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := TotalHead(tt.c)
+			got := game.TotalHead(tt.c)
 			if math.Abs(got-tt.want) > 0.0001 {
 				t.Errorf("TotalHead() = %v, want %v", got, tt.want)
 			}
@@ -105,13 +107,13 @@ func TestTotalHead(t *testing.T) {
 }
 
 func TestApplyPending(t *testing.T) {
-	r := &Reservoir{
-		Structurals: Structurals{
+	r := &game.Reservoir{
+		Structurals: game.Structurals{
 			Quantity:      100,
 			PendingChange: 10,
 		},
 	}
-	ApplyPending(r)
+	game.ApplyPending(r)
 	if r.Structurals.Quantity != 110 {
 		t.Errorf("ApplyPending() quantity = %v, want 110", r.Structurals.Quantity)
 	}
@@ -121,7 +123,7 @@ func TestApplyPending(t *testing.T) {
 
 	// Negative Check
 	r.Structurals.PendingChange = -200
-	ApplyPending(r)
+	game.ApplyPending(r)
 	if r.Structurals.Quantity != 0 {
 		t.Errorf("ApplyPending() quantity underflow = %v, want 0", r.Structurals.Quantity)
 	}
@@ -129,28 +131,28 @@ func TestApplyPending(t *testing.T) {
 
 func TestSystem_Tick(t *testing.T) {
 	// Setup simple specific system: Source -> Pipe -> Dest
-	res1 := &Reservoir{
-		Structurals: Structurals{
+	res1 := &game.Reservoir{
+		Structurals: game.Structurals{
 			Area:          10,
 			Quantity:      10000,
 			BaseElevation: 10, // High head
-			Contents:      []MaterialDef{Water},
+			Contents:      []game.MaterialDef{game.Water},
 		},
 	}
-	res2 := &Reservoir{
-		Structurals: Structurals{
+	res2 := &game.Reservoir{
+		Structurals: game.Structurals{
 			Area:          10,
 			MaxVolume:     20000,
 			Quantity:      0,
 			BaseElevation: 0, // Low head
-			Contents:      []MaterialDef{Water},
+			Contents:      []game.MaterialDef{game.Water},
 		},
 	}
-	pipe := NewPipe(res1, res2, 10, 1)
+	pipe := game.NewPipe(res1, res2, 10, 1)
 
-	s := &System{
-		Nodes: []Component{res1, res2},
-		Pipes: []*Pipe{pipe},
+	s := &game.System{
+		Nodes: []game.Component{res1, res2},
+		Pipes: []*game.Pipe{pipe},
 	}
 
 	// Run enough ticks to trigger flow (Tick % 10 == 0)
@@ -172,19 +174,26 @@ func TestSystem_Tick(t *testing.T) {
 }
 
 func Test_calculateFlow(t *testing.T) {
-	// Covered implicitly by System_Tick but let's test a specific case
-	from := &Reservoir{Structurals: Structurals{Area: 1, Quantity: 1000, BaseElevation: 10, Contents: []MaterialDef{Water}}}
-	to := &Reservoir{Structurals: Structurals{Area: 1, MaxVolume: 1000, Quantity: 0, BaseElevation: 0, Contents: []MaterialDef{Water}}}
-	// Pipe geometry will be fallback in function if not pipe
+	// t.Skip("Skipping Test_calculateFlow (unexported function)")
+	// Just test basic flow: R1(100) -> Pipe -> R2(0)
+	// After 1 tick (CalculateFlow called manually or via Tick)
 
-	// We need to pass valid components.
-	// If neither is pipe, calculateFlow uses defaults (radius=0.5, len=1.0)
-	calculateFlow(from, to, 0)
+	// Create components manually to test CalculateFlow
+	r1 := &game.Reservoir{Structurals: game.Structurals{MaxVolume: 100, Quantity: 100, BaseElevation: 10, Contents: []game.MaterialDef{game.Water}}}
+	r2 := &game.Reservoir{Structurals: game.Structurals{MaxVolume: 100, Quantity: 0, BaseElevation: 0, Contents: []game.MaterialDef{game.Water}}}
 
-	if from.Structurals.PendingChange >= 0 {
-		t.Errorf("calculateFlow failed to decrement source pending change: %v", from.Structurals.PendingChange)
+	// CalculateFlow(From, To, PumpHead)
+	// But it requires Pipe geometry usually?
+	// calculateFlow implementation:
+	// if pipe, ok := to.(*Pipe) ...
+	// If neither is pipe, uses fallback 1.0, 1.0, 0.5
+
+	game.CalculateFlow(r1, r2, 0)
+
+	if r1.Structurals.PendingChange >= 0 {
+		t.Error("r1 should have negative PendingChange")
 	}
-	if to.Structurals.PendingChange <= 0 {
-		t.Errorf("calculateFlow failed to increment dest pending change: %v", to.Structurals.PendingChange)
+	if r2.Structurals.PendingChange <= 0 {
+		t.Error("r2 should have positive PendingChange")
 	}
 }

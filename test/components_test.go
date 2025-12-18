@@ -1,24 +1,26 @@
-package main
+package test
 
 import (
 	"math"
 	"testing"
+
+	"github.com/padilin/gengeno/game"
 )
 
 func TestBasics_GetIdentifier(t *testing.T) {
 	tests := []struct {
 		name string
-		b    *Basics
+		b    *game.Basics
 		want string
 	}{
 		{
 			name: "Regular Identifier",
-			b:    &Basics{Identifier: "A"},
+			b:    &game.Basics{Identifier: "A"},
 			want: "A",
 		},
 		{
 			name: "Empty Identifier",
-			b:    &Basics{Identifier: ""},
+			b:    &game.Basics{Identifier: ""},
 			want: "",
 		},
 	}
@@ -34,21 +36,21 @@ func TestBasics_GetIdentifier(t *testing.T) {
 func TestBasics_GetColor(t *testing.T) {
 	tests := []struct {
 		name  string
-		b     *Basics
+		b     *game.Basics
 		want  byte
 		want1 byte
 		want2 byte
 	}{
 		{
 			name:  "Red Color",
-			b:     &Basics{Color: [3]byte{255, 0, 0}},
+			b:     &game.Basics{Color: [3]byte{255, 0, 0}},
 			want:  255,
 			want1: 0,
 			want2: 0,
 		},
 		{
 			name:  "Black Color",
-			b:     &Basics{Color: [3]byte{0, 0, 0}},
+			b:     &game.Basics{Color: [3]byte{0, 0, 0}},
 			want:  0,
 			want1: 0,
 			want2: 0,
@@ -71,8 +73,8 @@ func TestBasics_GetColor(t *testing.T) {
 }
 
 func TestReservoir_GetStructurals(t *testing.T) {
-	s := Structurals{MaxVolume: 100}
-	r := &Reservoir{
+	s := game.Structurals{MaxVolume: 100}
+	r := &game.Reservoir{
 		Structurals: s,
 	}
 	t.Run("Get Structural Data", func(t *testing.T) {
@@ -88,15 +90,15 @@ func TestReservoir_GetStructurals(t *testing.T) {
 
 func TestNewPipe(t *testing.T) {
 	type args struct {
-		from   Component
-		to     Component
+		from   game.Component
+		to     game.Component
 		len    float64
 		radius float64
 	}
 	tests := []struct {
 		name string
 		args args
-		want *Pipe
+		want *game.Pipe
 	}{
 		{
 			name: "Create Pipe",
@@ -111,7 +113,7 @@ func TestNewPipe(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewPipe(tt.args.from, tt.args.to, tt.args.len, tt.args.radius)
+			got := game.NewPipe(tt.args.from, tt.args.to, tt.args.len, tt.args.radius)
 			if got == nil {
 				t.Fatal("NewPipe() returned nil")
 			}
@@ -131,8 +133,8 @@ func TestNewPipe(t *testing.T) {
 }
 
 func TestPipe_GetStructurals(t *testing.T) {
-	s := Structurals{MaxVolume: 50}
-	p := &Pipe{
+	s := game.Structurals{MaxVolume: 50}
+	p := &game.Pipe{
 		Structurals: s,
 	}
 	t.Run("Get Structural Data", func(t *testing.T) {

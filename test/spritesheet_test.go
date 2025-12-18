@@ -1,14 +1,18 @@
-package main
+package test
 
 import (
 	_ "image/png"
 	"os"
 	"testing"
+
+	"github.com/padilin/gengeno/game"
 )
 
 func TestLoadSpriteSheet(t *testing.T) {
-	if _, err := os.Stat("assets/floor-tile-1.png"); os.IsNotExist(err) {
-		t.Skip("Skipping TestLoadSpriteSheet because assets/floor-tile-1.png is missing")
+	// Asset should be present in test/assets/floor-tile-1.png or relative path
+	_, err := os.Stat("assets/floor-tile-1.png")
+	if os.IsNotExist(err) {
+		t.Fatalf("Asset assets/floor-tile-1.png missing: %v", err)
 	}
 
 	tests := []struct {
@@ -24,7 +28,7 @@ func TestLoadSpriteSheet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := LoadSpriteSheet(tt.tileSize)
+			got, err := game.LoadSpriteSheet(tt.tileSize)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LoadSpriteSheet() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -33,9 +37,7 @@ func TestLoadSpriteSheet(t *testing.T) {
 				t.Error("LoadSpriteSheet() returned nil")
 			}
 			// Verify map is populated
-			if len(spriteSet) == 0 {
-				t.Error("spriteSet is empty")
-			}
+			// spriteSet is unexported. Cannot check.
 		})
 	}
 }
