@@ -164,12 +164,12 @@ func TestSystem_Tick(t *testing.T) {
 	}
 
 	// Check if flow occurred
-	if res1.Structurals.Quantity >= 10000 {
+	if res1.Quantity >= 10000 {
 		t.Error("Tick() Source quantity did not decrease")
 	}
 	// With multiple steps, dest should now have received some fluid from pipe
-	if res2.Structurals.Quantity <= 0 {
-		t.Errorf("Tick() Dest quantity did not increase, qty=%f", res2.Structurals.Quantity)
+	if res2.Quantity <= 0 {
+		t.Errorf("Tick() Dest quantity did not increase, qty=%f", res2.Quantity)
 	}
 }
 
@@ -190,10 +190,10 @@ func Test_calculateFlow(t *testing.T) {
 
 	game.CalculateFlow(r1, r2, 0)
 
-	if r1.Structurals.PendingChange >= 0 {
+	if r1.PendingChange >= 0 {
 		t.Error("r1 should have negative PendingChange")
 	}
-	if r2.Structurals.PendingChange <= 0 {
+	if r2.PendingChange <= 0 {
 		t.Error("r2 should have positive PendingChange")
 	}
 }
