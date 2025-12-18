@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"fmt"
@@ -25,21 +25,21 @@ func SamePtr(a, b any) (bool, string) {
 	return eq, desc
 }
 
-func identifier(c Component) string {
+func Identifier(c Component) string {
 	if c == nil {
 		return "nil"
 	}
 	return c.GetIdentifier()
 }
 
-func cap(s *Structurals) float64 {
+func Cap(s *Structurals) float64 {
 	if s == nil {
 		return 0
 	}
 	return s.MaxVolume
 }
 
-func pres(s *Structurals) float64 {
+func Pres(s *Structurals) float64 {
 	if s == nil {
 		return 0
 	}

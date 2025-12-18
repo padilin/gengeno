@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"sort"
@@ -15,6 +15,10 @@ type Sprite struct {
 // sprites may be added to a Tile.
 type Tile struct {
 	entities []*Entity
+}
+
+func (t *Tile) Entities() []*Entity {
+	return t.entities
 }
 
 func (t *Tile) AddEntity(entity *Entity) {

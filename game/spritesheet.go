@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var spriteSet map[string]*Sprite
+var SpriteSet map[string]*Sprite
 
 // SpriteSheet represents a collection of sprite images.
 type SpriteSheet struct {
@@ -63,7 +63,7 @@ func LoadSpriteSheet(tileSize int) (*SpriteSheet, error) {
 	// s.Crown = spriteAt(8, 6)
 	// s.Portal = spriteAt(5, 6)
 
-	spriteSet = map[string]*Sprite{
+	SpriteSet = map[string]*Sprite{
 		"floor":           {Image: spriteAt(0, 0), DrawOrder: 0},
 		"pipe_enter_left": {Image: spriteAt(3, 2), DrawOrder: 10},
 		"reservoir_full":  {Image: spriteAt(2, 0), DrawOrder: 5},

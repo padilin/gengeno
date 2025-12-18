@@ -13,7 +13,6 @@ dist/
 *.dylib
 
 # Go mod
-go.sum
 vendor/
 
 # IDEs

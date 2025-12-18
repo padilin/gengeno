@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"log"
@@ -71,7 +71,7 @@ func ApplyPending(c Component) {
 	if r == nil {
 		return
 	}
-	log.Printf("ApplyPending %v quantity=%.2f change=%.3f", identifier(c), r.Quantity, r.PendingChange)
+	log.Printf("ApplyPending %v quantity=%.2f change=%.3f", Identifier(c), r.Quantity, r.PendingChange)
 	r.Quantity += r.PendingChange
 	r.PendingChange = 0
 	if r.Quantity < 0 {
@@ -104,14 +104,14 @@ func (s *System) Tick() {
 		}
 		log.Printf("Pipe[%d] area=%.3f len=%.3f from=%v quantity=%.2f pres=%.3f -> to=%v quantity=%.2f pres=%.3f",
 			i, p.Area, p.Length,
-			identifier(in), inS.Quantity, pres(inS),
-			identifier(out), outS.Quantity, pres(outS))
+			Identifier(in), inS.Quantity, Pres(inS),
+			Identifier(out), outS.Quantity, Pres(outS))
 	}
 
 	for _, p := range s.Pipes {
 		// Calculate Flow 1: Source -> Pipe
 		if p.From != nil {
-			calculateFlow(p.From, p, p.PumpHead) // PumpHead usually applies to flow *through* pipe?
+			CalculateFlow(p.From, p, p.PumpHead) // PumpHead usually applies to flow *through* pipe?
 			// Let's assume PumpHead helps move From -> To.
 			// For simplicity: From -> Pipe (Gravity/Pressure), Pipe -> To (Gravity/Pressure + Pump?)
 			// Or apply PumpHead to the whole path?
@@ -120,7 +120,7 @@ func (s *System) Tick() {
 
 		// Calculate Flow 2: Pipe -> Destination
 		if p.To != nil {
-			calculateFlow(p, p.To, p.PumpHead)
+			CalculateFlow(p, p.To, p.PumpHead)
 		}
 	}
 
@@ -133,7 +133,7 @@ func (s *System) Tick() {
 	}
 }
 
-func calculateFlow(from, to Component, pumpHead float64) {
+func CalculateFlow(from, to Component, pumpHead float64) {
 	if from == nil || to == nil {
 		return
 	}

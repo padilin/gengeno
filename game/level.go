@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 // Level represents a Game level.
 type Level struct {
-	w, h int
+	Width, Height int
 
 	tiles    [][]*Tile // (Y,X) array of tiles
 	tileSize int
@@ -14,10 +14,14 @@ type Level struct {
 	System   *System
 }
 
+func (l *Level) Entities() []*Entity {
+	return l.entities
+}
+
 func NewLevel(g *Game) (*Level, error) {
 	l := &Level{
-		w:        4,
-		h:        4,
+		Width:    4,
+		Height:   4,
 		tileSize: 32,
 		entities: make([]*Entity, 0),
 	}
@@ -27,10 +31,10 @@ func NewLevel(g *Game) (*Level, error) {
 		return nil, fmt.Errorf("failed to load spritesheet: %s", err)
 	}
 
-	l.tiles = make([][]*Tile, l.h)
-	for y := 0; y < l.h; y++ {
-		l.tiles[y] = make([]*Tile, l.w)
-		for x := 0; x < l.w; x++ {
+	l.tiles = make([][]*Tile, l.Height)
+	for y := 0; y < l.Height; y++ {
+		l.tiles[y] = make([]*Tile, l.Width)
+		for x := 0; x < l.Width; x++ {
 			l.tiles[y][x] = &Tile{}
 
 			floorComp := &Reservoir{
@@ -95,7 +99,7 @@ func NewLevel(g *Game) (*Level, error) {
 
 // Tile returns the tile at the provided coordinates, or nil.
 func (l *Level) Tile(x, y int) *Tile {
-	if x >= 0 && y >= 0 && x < l.w && y < l.h {
+	if x >= 0 && y >= 0 && x < l.Width && y < l.Height {
 		return l.tiles[y][x]
 	}
 	return nil
@@ -103,5 +107,5 @@ func (l *Level) Tile(x, y int) *Tile {
 
 // Size returns the size of the Level.
 func (l *Level) Size() (width, height int) {
-	return l.w, l.h
+	return l.Width, l.Height
 }
