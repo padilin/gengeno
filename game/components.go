@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"math"
@@ -68,7 +68,7 @@ type Pipe struct {
 }
 
 func NewPipe(from, to Component, len, radius float64) *Pipe {
-	area := math.Pi * math.Pow(radius, 2)
+	area := math.Pi * radius * radius
 	return &Pipe{
 		From:     from,
 		To:       to,
