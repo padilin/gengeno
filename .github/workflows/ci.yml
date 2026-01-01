@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
     
-    # - uses: nao1215/actions-ebitengine@v0
+    - uses: nao1215/actions-ebitengine@v0
 
     - uses: actions/setup-go@v6
       with:
