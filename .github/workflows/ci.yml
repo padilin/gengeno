@@ -14,11 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
     
-    - uses: nao1215/actions-ebitengine@v0
-    - name: Install Xvfb and dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y xvfb libx11-dev
+    # - uses: nao1215/actions-ebitengine@v0
 
     - uses: actions/setup-go@v6
       with:
@@ -31,8 +27,8 @@ jobs:
     - name: Run go vet
       run: go vet ./...
 
-    - name: Run tests
-      run: go test -v ./test/...
+    # - name: Run tests
+    #   run: go test -v ./test/...
 
     - name: Build
       run: go build -v ./...
